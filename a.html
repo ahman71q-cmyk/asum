@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 لعبة السكور الاحترافية</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* خلفية متحركة */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+            z-index: -1;
+            animation: bgMove 15s ease-in-out infinite;
+        }
+
+        @keyframes bgMove {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 550px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* الهيدر مع الاسم */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .developer-name {
+            font-size: 32px;
+            font-weight: bold;
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
+            margin-bottom: 10px;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3); }
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 26px;
+            background: linear-gradient(90deg, #00dbde, #fc00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* حقول الإدخال */
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 14px 18px;
+            margin: 8px 0;
+            background: rgba(255,255,255,0.08);
+            border: 2px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s;
+            outline: none;
+        }
+        input:focus, select:focus {
+            border-color: #00dbde;
+            background: rgba(255,255,255,0.12);
+            box-shadow: 0 0 20px rgba(0, 219, 222, 0.4);
+            transform: scale(1.02);
+        }
+        input::placeholder { color: rgba(255,255,255,0.5); }
+        
+        select option {
+            background: #16213e;
+            color: white;
+        }
+
+        /* الأزرار */
+        .btn {
+            width: 100%;
+            padding: 14px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            overflow: hidden;
+        }
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        .btn:hover::before {
+            left: 100%;
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
+        }
+        .btn:active { transform: translateY(0); }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            box-shadow: 0 5px 20px rgba(56, 239, 125, 0.4);
+        }
+        .btn-success:hover { box-shadow: 0 8px 30px rgba(56, 239, 125, 0.6); }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #eb3349, #f45c43);
+            box-shadow: 0 5px 20px rgba(235, 51, 73, 0.4);
+        }
+
+        /* Tooltip */
+        .tooltip-wrap {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        .tooltip-wrap .tip {
+            visibility: hidden;
+            opacity: 0;
+            width: max-content;
+            max-width: 220px;
+            background: rgba(0,0,0,0.9);
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 8px 12px;
+            position: absolute;
+            z-index: 10;
+            bottom: 115%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 13px;
+            font-weight: normal;
+            transition: all 0.3s;
+            pointer-events: none;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .tooltip-wrap .tip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -6px;
+            border-width: 6px;
+            border-style: solid;
+            border-color: rgba(0,0,0,0.9) transparent transparent transparent;
+        }
+        .tooltip-wrap:hover .tip {
+            visibility: visible;
+            opacity: 1;
+            bottom: 120%;
+        }
+
+        /* Header للأعمدة */
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            margin: 15px 0 10px 0;
+            background: linear-gradient(135deg, rgba(0, 219, 222, 0.2), rgba(252, 0, 255, 0.2));
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 16px;
+            border: 2px solid rgba(0, 219, 222, 0.4);
+        }
+        .column-header span:first-child {
+            flex: 1;
+        }
+        .column-header span:last-child {
+            width: 100px;
+            text-align: center;
+        }
+
+        /* صف اللاعب */
+        .player-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.06);
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s;
+        }
+        .player-row:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateX(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .player-row input {
+            width: 100px;
+            margin: 0;
+            text-align: center;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00dbde, #fc00ff);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px rgba(0, 219, 222, 0.5);
+        }
+        .round-info {
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        /* Leaderboard */
+        .rank-1 {
+            background: linear-gradient(135deg, rgba(255,215,0,0.3), rgba(255,140,0,0.3));
+            border: 2px solid #ffd700;
+            box-shadow: 0 0 25px rgba(255,215,0,0.4);
+        }
+        .rank-2 {
+            background: linear-gradient(135deg, rgba(192,192,192,0.25), rgba(169,169,169,0.25));
+            border: 2px solid #c0c0c0;
+            box-shadow: 0 0 20px rgba(192,192,192,0.3);
+        }
+        .rank-3 {
+            background: linear-gradient(135deg, rgba(205,127,50,0.25), rgba(184,115,51,0.25));
+            border: 2px solid #cd7f32;
+            box-shadow: 0 0 20px rgba(205,127,50,0.3);
+        }
+        .medal { font-size: 22px; margin-left: 8px; }
+
+        .hidden { display: none; }
+
+        .winner-msg {
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            padding: 20px;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            border-radius: 15px;
+            margin: 20px 0;
+            animation: pulse 1.5s infinite;
+            box-shadow: 0 0 30px rgba(240, 147, 251, 0.5);
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            top: -10px;
+            z-index: 9999;
+            animation: fall 3s linear forwards;
+        }
+        @keyframes fall {
+            to { transform: translateY(110vh) rotate(720deg); }
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- الهيدر مع اسم المطور -->
+    <div class="header">
+        <div class="developer-name">A7med karam</div>
+    </div>
+
+    <!-- شاشة الإعداد -->
+    <div id="setupScreen">
+        <h2> إعداد اللعبة</h2>
+        <input type="number" id="numRounds" placeholder=" عدد الجولات" min="1">
+        <input type="number" id="numPlayers" placeholder="👥 عدد اللاعبين" min="2">
+        
+        <select id="sortOrder">
+            <option value="desc">🔽 الأعلى هو الفائز (تنازلي)</option>
+            <option value="asc">🔼 الأقل هو الفائز (تصاعدي)</option>
+        </select>
+        
+        <div class="tooltip-wrap">
+            <button class="btn btn-success" onclick="showNamesInput()">التالي ➡️</button>
+            <span class="tip">انتقل لمرحلة إدخال أسماء اللاعبين</span>
+        </div>
+    </div>
+
+    <!-- شاشة الأسماء -->
+    <div id="namesScreen" class="hidden">
+        <h2>✍️ أسماء اللاعبين</h2>
+        <div id="namesContainer"></div>
+        
+        <div class="tooltip-wrap">
+            <button class="btn btn-success" onclick="startGame()">🚀 ابدأ اللعبة</button>
+            <span class="tip">ابدأ الجولة الأولى بعد إدخال الأسماء</span>
+        </div>
+        <div class="tooltip-wrap">
+            <button class="btn btn-danger" onclick="goBack('setupScreen')">🔙 رجوع</button>
+            <span class="tip">ارجع لشاشة الإعداد لتعديل البيانات</span>
+        </div>
+    </div>
+
+    <!-- شاشة الجولة -->
+    <div id="roundScreen" class="hidden">
+        <h2 id="roundTitle"> الجولة</h2>
+        <div class="round-info" id="roundInfo"></div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        
+        <div class="column-header">
+            <span>👤 الاسم</span>
+            <span>🎯 السكور</span>
+        </div>
+        
+        <div id="scoresContainer"></div>
+        
+        <div class="tooltip-wrap">
+            <button class="btn btn-success" onclick="calculateRound()">✅ اعتماد الجولة</button>
+            <span class="tip">احفظ سكور هذه الجولة وانتقل للترتيب</span>
+        </div>
+    </div>
+
+    <!-- شاشة النتائج -->
+    <div id="resultScreen" class="hidden">
+        <h2>🏆 الترتيب الحالي</h2>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill2"></div></div>
+        <div id="leaderboard"></div>
+        
+        <div class="tooltip-wrap">
+            <button class="btn btn-success" id="nextBtn" onclick="nextRound()">➡️ التالي</button>
+            <span class="tip" id="nextTip">انتقل للجولة التالية</span>
+        </div>
+    </div>
+
+    <!-- شاشة النهاية -->
+    <div id="endScreen" class="hidden">
+        <h2>🎉 انتهت اللعبة!</h2>
+        <div id="finalWinner" class="winner-msg"></div>
+        <div id="finalLeaderboard"></div>
+        
+        <div class="tooltip-wrap">
+            <button class="btn" onclick="location.reload()">🔄 لعبة جديدة</button>
+            <span class="tip">ابدأ لعبة جديدة من البداية بأسماء وجولات مختلفة</span>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        Designed by A7med karam © 2026
+    </div>
+</div>
+
+<script>
+    let totalRounds = 0;
+    let currentRound = 1;
+    let players = [];
+    let sortOrder = 'desc';
+
+    function showNamesInput() {
+        let num = document.getElementById('numPlayers').value;
+        totalRounds = parseInt(document.getElementById('numRounds').value);
+        sortOrder = document.getElementById('sortOrder').value;
+        
+        if(!num || !totalRounds) { alert("️ من فضلك اكمل البيانات"); return; }
+        
+        let container = document.getElementById('namesContainer');
+        container.innerHTML = '';
+        for(let i=0; i<num; i++) {
+            container.innerHTML += `<input type="text" placeholder="👤 اسم اللاعب ${i+1}" class="player-name">`;
+        }
+        switchScreen('namesScreen');
+    }
+
+    function startGame() {
+        let names = document.querySelectorAll('.player-name');
+        players = [];
+        names.forEach(input => {
+            if(input.value.trim() !== "") {
+                players.push({ name: input.value.trim(), totalScore: 0 });
+            }
+        });
+        if(players.length < 2) { alert("⚠️ لازم يكون في لاعبين اتنين على الأقل"); return; }
+        loadRound();
+    }
+
+    function loadRound() {
+        document.getElementById('roundTitle').innerText = `🎯 الجولة ${currentRound}`;
+        document.getElementById('roundInfo').innerText = `الجولة ${currentRound} من ${totalRounds}`;
+        document.getElementById('progressFill').style.width = `${(currentRound/totalRounds)*100}%`;
+        
+        let container = document.getElementById('scoresContainer');
+        container.innerHTML = '';
+        players.forEach((p, index) => {
+            container.innerHTML += `
+                <div class="player-row">
+                    <span>${p.name}</span>
+                    <input type="number" id="score_${index}" placeholder="0" min="0">
+                </div>
+            `;
+        });
+        switchScreen('roundScreen');
+    }
+
+    function calculateRound() {
+        let inputs = document.querySelectorAll('#scoresContainer input');
+        let allFilled = true;
+        
+        inputs.forEach((input, index) => {
+            if(input.value === "") allFilled = false;
+            players[index].totalScore += parseInt(input.value) || 0;
+        });
+
+        if(!allFilled) { alert("️ من فضلك ادخل سكور كل اللاعبين"); return; }
+
+        if(sortOrder === 'desc') {
+            players.sort((a, b) => b.totalScore - a.totalScore);
+        } else {
+            players.sort((a, b) => a.totalScore - b.totalScore);
+        }
+        
+        showResults();
+    }
+
+    function showResults() {
+        let lb = document.getElementById('leaderboard');
+        lb.innerHTML = '';
+        const medals = ['🥇', '🥈', ''];
+        
+        players.forEach((p, index) => {
+            let rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : '';
+            let medal = index < 3 ? `<span class="medal">${medals[index]}</span>` : '';
+            lb.innerHTML += `
+                <div class="player-row ${rankClass}">
+                    <span>#${index + 1} ${medal} ${p.name}</span>
+                    <span><b>${p.totalScore}</b> نقطة</span>
+                </div>
+            `;
+        });
+
+        document.getElementById('progressFill2').style.width = `${(currentRound/totalRounds)*100}%`;
+        switchScreen('resultScreen');
+
+        if(currentRound >= totalRounds) {
+            document.getElementById('nextBtn').innerText = "🏆 عرض الفائز النهائي";
+            document.getElementById('nextTip').innerText = "اعرض البطل والنتيجة النهائية";
+        } else {
+            document.getElementById('nextBtn').innerText = "➡️ الجولة التالية";
+            document.getElementById('nextTip').innerText = "انتقل للجولة التالية";
+        }
+    }
+
+    function nextRound() {
+        if(currentRound >= totalRounds) {
+            showFinalWinner();
+        } else {
+            currentRound++;
+            loadRound();
+        }
+    }
+
+    function showFinalWinner() {
+        switchScreen('endScreen');
+        document.getElementById('finalWinner').innerHTML = `👑 البطل<br>${players[0].name}<br>(${players[0].totalScore} نقطة)`;
+        document.getElementById('finalLeaderboard').innerHTML = document.getElementById('leaderboard').innerHTML;
+        launchConfetti();
+    }
+
+    function switchScreen(screenId) {
+        ['setupScreen', 'namesScreen', 'roundScreen', 'resultScreen', 'endScreen'].forEach(id => {
+            document.getElementById(id).classList.add('hidden');
+        });
+        document.getElementById(screenId).classList.remove('hidden');
+    }
+
+    function goBack(screenId) {
+        switchScreen(screenId);
+    }
+
+    function launchConfetti() {
+        const colors = ['#f093fb', '#f5576c', '#ffd700', '#38ef7d', '#00dbde', '#ff6b6b', '#feca57'];
+        for(let i=0; i<100; i++) {
+            let c = document.createElement('div');
+            c.className = 'confetti';
+            c.style.left = Math.random() * 100 + 'vw';
+            c.style.background = colors[Math.floor(Math.random()*colors.length)];
+            c.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            c.style.animationDelay = Math.random() * 2 + 's';
+            document.body.appendChild(c);
+            setTimeout(() => c.remove(), 5000);
+        }
+    }
+</script>
+
+</body>
+</html>
